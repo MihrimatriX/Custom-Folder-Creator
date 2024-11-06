@@ -75,14 +75,14 @@ public class VideoOrganizer {
                                 ")\n";
                         Path runBatPath = videoFolder.resolve("run.bat");
                         Files.write(runBatPath, runBatContent.getBytes());
-                        System.out.println(videoName + " için klasör ve dosyalar oluşturuldu.");
+                        LogManager.getInstance().addLog(videoName + " için klasör ve dosyalar oluşturuldu.", false);
                     } catch (IOException e) {
-                        System.err.println("Hata oluştu: " + e.getMessage());
+                        LogManager.getInstance().addLog("Klasör oluşturma hatası. " , true);
                     }
                 }
             });
         } catch (IOException e) {
-            System.err.println("Klasör okunurken hata oluştu: " + e.getMessage());
+            LogManager.getInstance().addLog("Klasör okuma hatası.", true);
         }
     }
 
@@ -134,7 +134,7 @@ public class VideoOrganizer {
         }
     }
 
-    private static void displayVideoDetailsPrint(File file) {
+    static void displayVideoDetailsPrint(File file) {
         MediaInfo mediaInfo = new MediaInfo();
         mediaInfo.Open(file.getAbsolutePath());
 
@@ -162,7 +162,7 @@ public class VideoOrganizer {
             Process process = Runtime.getRuntime().exec("attrib +h +s \"" + path.toString() + "\"");
             process.waitFor();
         } catch (IOException | InterruptedException e) {
-            System.err.println("Hata oluştu (atribüt ayarlama): " + e.getMessage());
+            LogManager.getInstance().addLog("Hata oluştu (attriubte ayarlama)", true);
         }
     }
 }

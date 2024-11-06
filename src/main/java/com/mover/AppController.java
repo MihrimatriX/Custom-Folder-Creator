@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+import static com.mover.VideoOrganizer.displayVideoDetailsPrint;
 import static com.mover.WebScraper.fetchIcon;
 
 public class AppController {
@@ -72,7 +73,7 @@ public class AppController {
         detailsVBox.setMaxHeight(Region.USE_COMPUTED_SIZE);
 
         LogManager.getInstance().setLogTextArea(logTextArea);
-        LogManager.getInstance().addLog("Uygulama başlatıldı.");
+        LogManager.getInstance().addLog("Uygulama başlatıldı.", false);
 
         videoTableView.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {

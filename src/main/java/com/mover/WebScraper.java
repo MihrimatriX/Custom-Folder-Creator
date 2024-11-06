@@ -27,7 +27,6 @@ public class WebScraper {
         try {
             Document searchPage = Jsoup.connect(searchUrl).get();
             //saveHtmlToFile(searchPage.html(), targetDirectory);
-
             Element iconElement = searchPage.select("div[data-attrid='images universal']").get(1);
             String deviantPageUrl = iconElement.attr("data-lpage");
 
@@ -39,13 +38,12 @@ public class WebScraper {
             if (!deviantFileUrl.isEmpty()) {
                 String filePath = targetDirectory + "/" + fileName + ".png";
                 downloadImage(deviantFileUrl, filePath);
-                LogManager.getInstance().addLog("Icon saved at: " + filePath);
+                LogManager.getInstance().addLog("Icon saved at: " + filePath, false);
             } else {
-                System.out.println("No icon found for: " + fileName);
+                LogManager.getInstance().addLog("No icon found for: " + fileName, true);
             }
         } catch (IOException e) {
-            System.err.println("Error fetching icon for: " + fileName);
-            e.printStackTrace();
+            LogManager.getInstance().addLog("Error fetching icon for: " + fileName, true);
         }
     }
 
@@ -65,7 +63,7 @@ public class WebScraper {
                     int statusCode = httpURLConnection.getResponseCode();
 
                     if (statusCode == HttpURLConnection.HTTP_FORBIDDEN || statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                        System.out.println("Error " + statusCode + ": Skipping download for URL: " + imageUrl);
+                        LogManager.getInstance().addLog("Error " + statusCode + ": Skipping download for URL: " + imageUrl, true);
                         return null;
                     }
 
@@ -78,7 +76,7 @@ public class WebScraper {
                             fileOutputStream.write(dataBuffer, 0, bytesRead);
                         }
                     }
-                    System.out.println("PNG image downloaded successfully: " + pngPath);
+                    LogManager.getInstance().addLog("PNG image downloaded successfully: " + pngPath, false);
 
                     BufferedImage originalImage = ImageIO.read(new File(pngPath));
                     BufferedImage resizedImage = resizeImage(originalImage);
@@ -86,13 +84,13 @@ public class WebScraper {
                     try (FileOutputStream icoOutputStream = new FileOutputStream(icoPath)) {
                         ICOEncoder.write(resizedImage, icoOutputStream);
                     }
-                    System.out.println("ICO image created successfully: " + icoPath);
+                    LogManager.getInstance().addLog("ICO image created successfully: " + icoPath, false);
 
                     Path icoFilePath = Paths.get(icoPath);
                     Files.setAttribute(icoFilePath, "dos:hidden", true);
-                    System.out.println("ICO image set to hidden: " + icoPath);
+                    LogManager.getInstance().addLog("ICO image set to hidden: " + icoPath, false);
                 } catch (IOException e) {
-                    System.err.println("Error downloading or converting image: " + e.getMessage());
+                    LogManager.getInstance().addLog("Error downloading or converting image: ", true);
                 }
                 return null;
             }
