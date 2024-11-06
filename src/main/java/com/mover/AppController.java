@@ -26,12 +26,8 @@ import java.util.stream.Stream;
 import static com.mover.WebScraper.fetchIcon;
 
 public class AppController {
-
     @FXML
-    private ImageView iconImageView;
-
-    @FXML
-    private Label fileNameLabel;
+    private TextArea logTextArea;
 
     @FXML
     private TableView<FileInfo> videoTableView;
@@ -68,12 +64,15 @@ public class AppController {
         sizeColumn.setCellValueFactory(new PropertyValueFactory<>("sizeFormatted"));
         extensionColumn.setStyle("-fx-alignment: CENTER;");
         sizeColumn.setStyle("-fx-alignment: CENTER;");
-        nameColumn.prefWidthProperty().bind(videoTableView.widthProperty().multiply(0.6));
-        extensionColumn.prefWidthProperty().bind(videoTableView.widthProperty().multiply(0.1));
+        nameColumn.prefWidthProperty().bind(videoTableView.widthProperty().multiply(0.7));
+        extensionColumn.prefWidthProperty().bind(videoTableView.widthProperty().multiply(0.09));
         sizeColumn.prefWidthProperty().bind(videoTableView.widthProperty().multiply(0.2));
 
         detailsScrollPane.setMaxHeight(400);
         detailsVBox.setMaxHeight(Region.USE_COMPUTED_SIZE);
+
+        LogManager.getInstance().setLogTextArea(logTextArea);
+        LogManager.getInstance().addLog("Uygulama başlatıldı.");
 
         videoTableView.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
@@ -216,7 +215,7 @@ public class AppController {
                 dir.mkdirs();
             }
 
-            fetchIcon(fileName, targetDirectory, iconImageView, fileNameLabel);
+            fetchIcon(fileName, targetDirectory);
 
             Platform.runLater(() -> {
                 File iconFile = new File(targetDirectory + "/" + fileName + ".png");

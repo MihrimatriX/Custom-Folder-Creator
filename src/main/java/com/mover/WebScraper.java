@@ -1,10 +1,6 @@
 package com.mover;
 
-import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import net.sf.image4j.codec.ico.ICOEncoder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,8 +20,7 @@ import java.nio.file.Paths;
 import static com.mover.HtmlHelper.saveHtmlToFile;
 
 public class WebScraper {
-    static int say = 0;
-    public static void fetchIcon(String fileName, String targetDirectory, ImageView iconImageView, Label fileNameLabel) {
+    public static void fetchIcon(String fileName, String targetDirectory) {
         String baseUrl = "https://www.google.com";
         String searchUrl = baseUrl + "/search?q=" + fileName + URLEncoder.encode(" folder icon") + "&udm=2";
 
@@ -43,8 +38,8 @@ public class WebScraper {
 
             if (!deviantFileUrl.isEmpty()) {
                 String filePath = targetDirectory + "/" + fileName + ".png";
-                downloadImage(deviantFileUrl, filePath, iconImageView, fileNameLabel);
-                System.out.println("Icon saved at: " + filePath);
+                downloadImage(deviantFileUrl, filePath);
+                LogManager.getInstance().addLog("Icon saved at: " + filePath);
             } else {
                 System.out.println("No icon found for: " + fileName);
             }
@@ -54,7 +49,7 @@ public class WebScraper {
         }
     }
 
-    private static void downloadImage(String imageUrl, String filePath, ImageView iconImageView, Label fileNameLabel) {
+    private static void downloadImage(String imageUrl, String filePath) {
         String pngPath = filePath.endsWith(".png") ? filePath : filePath + ".png";
         String icoPath = filePath.replace(".png", "").replace(".jpg", "") + ".ico";
 
@@ -92,17 +87,6 @@ public class WebScraper {
                         ICOEncoder.write(resizedImage, icoOutputStream);
                     }
                     System.out.println("ICO image created successfully: " + icoPath);
-
-                    Platform.runLater(() -> {
-                        try {
-                            FileInputStream fileInputStream = new FileInputStream(pngPath);
-                            Image image = new Image(fileInputStream);
-                            iconImageView.setImage(image);
-                            fileNameLabel.setText("İndirilen İkon: " + icoPath);
-                        } catch (FileNotFoundException e) {
-                            System.err.println("Error: Resim dosyası bulunamadı " + e.getMessage());
-                        }
-                    });
 
                     Path icoFilePath = Paths.get(icoPath);
                     Files.setAttribute(icoFilePath, "dos:hidden", true);

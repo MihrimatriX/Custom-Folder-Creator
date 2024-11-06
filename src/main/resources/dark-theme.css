@@ -6,13 +6,13 @@
     -fx-font-weight: bold;
 }
 
-.label, .button, .text-input, .table-view, .list-view, .scroll-pane {
+.label, .text-input, .table-view, .list-view, .scroll-pane {
     -fx-background-color: transparent;
     -fx-text-fill: white;
     -fx-border-color: transparent;
 }
 
-.table-view, .list-view, .scroll-pane {
+.list-view, .scroll-pane {
     -fx-background-insets: 0;
     -fx-background-radius: 0;
 }
@@ -31,4 +31,18 @@
 
 .scroll-bar:horizontal .increment-button, .scroll-bar:horizontal .decrement-button {
     -fx-background-color: transparent;
+}
+
+.table-view, .table-view .column-header, .table-cell {
+    -fx-border-color: gray;
+    -fx-border-width: 0 0 1 0;
+    -fx-background-color: #333;
+    -fx-text-fill: white;
+}
+
+.button {
+    -fx-background-color: #444;
+    -fx-border-color: gray;
+    -fx-border-width: 1px;
+    -fx-text-fill: white;
 }
