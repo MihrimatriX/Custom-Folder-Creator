@@ -26,12 +26,13 @@ public class WebScraper {
 
         try {
             Document searchPage = Jsoup.connect(searchUrl).get();
-            //saveHtmlToFile(searchPage.html(), targetDirectory);
+            System.out.println(targetDirectory);
+            saveHtmlToFile(searchPage.html(), targetDirectory, "google html");
             Element iconElement = searchPage.select("div[data-attrid='images universal']").get(1);
             String deviantPageUrl = iconElement.attr("data-lpage");
 
             Document deviantPage = Jsoup.connect(deviantPageUrl).get();
-            //saveHtmlToFile(deviantPage.html(), targetDirectory);
+            saveHtmlToFile(deviantPage.html(), targetDirectory, "deviant html");
             Element deviantFileIcon = deviantPage.selectFirst("img[property='contentUrl']");
             String deviantFileUrl = deviantFileIcon != null ? deviantFileIcon.attr("src") : "";
 

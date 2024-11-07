@@ -28,7 +28,7 @@ import static com.mover.WebScraper.fetchIcon;
 
 public class AppController {
     @FXML
-    private TextArea logTextArea;
+    private ScrollPane scrollPane;
 
     @FXML
     private TableView<FileInfo> videoTableView;
@@ -72,7 +72,7 @@ public class AppController {
         detailsScrollPane.setMaxHeight(400);
         detailsVBox.setMaxHeight(Region.USE_COMPUTED_SIZE);
 
-        LogManager.getInstance().setLogTextArea(logTextArea);
+        LogManager.getInstance().setLogTextFlow(scrollPane);
         LogManager.getInstance().addLog("Uygulama başlatıldı.", false);
 
         videoTableView.setOnMouseClicked(event -> {
@@ -80,7 +80,7 @@ public class AppController {
                 FileInfo selectedFile = videoTableView.getSelectionModel().getSelectedItem();
                 if (selectedFile != null) {
                     displayVideoDetails(new File(selectedFile.getPath()));
-                    //displayVideoDetailsPrint(new File(selectedFile.getPath()));
+                    displayVideoDetailsPrint(new File(selectedFile.getPath()));
                 } else {
                     clearDetails();
                 }
@@ -148,7 +148,7 @@ public class AppController {
                     });
             videoTableView.setItems(fileInfoList);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogManager.getInstance().addLog("Dosya Listeleme sırasında bir hata oluştur", true);
         }
     }
 
@@ -213,7 +213,7 @@ public class AppController {
 
             File dir = new File(targetDirectory);
             if (!dir.exists()) {
-                dir.mkdirs();
+                var ignored = dir.mkdirs();
             }
 
             fetchIcon(fileName, targetDirectory);
