@@ -21,40 +21,53 @@ import static com.mover.HtmlHelper.saveHtmlToFile;
 
 public class WebScraper {
     public static void fetchIcon(String fileName, String targetDirectory) {
-        String baseUrl = "https://www.google.com";
-        String searchUrl = baseUrl + "/search?q=" + fileName + URLEncoder.encode(" folder icon") + "&udm=2";
+        Task<Void> fetchIconTask = new Task<>() {
+            @Override
+            protected Void call() {
+                String baseUrl = "https://www.google.com";
+                String searchUrl = baseUrl + "/search?q=" + fileName + URLEncoder.encode(" folder icon") + "&udm=2";
 
-        try {
-            Document searchPage = Jsoup.connect(searchUrl).get();
-            System.out.println(targetDirectory);
-            saveHtmlToFile(searchPage.html(), targetDirectory, "google html");
-            Element iconElement = searchPage.select("div[data-attrid='images universal']").get(1);
-            String deviantPageUrl = iconElement.attr("data-lpage");
+                try {
+                    Document searchPage = Jsoup.connect(searchUrl).get();
+                    saveHtmlToFile(searchPage.html(), targetDirectory, "google_search_result", "Google Page");
+                    LogManager.getInstance().addLog("Google sayfası kaydedildi.", false);
 
-            Document deviantPage = Jsoup.connect(deviantPageUrl).get();
-            saveHtmlToFile(deviantPage.html(), targetDirectory, "deviant html");
-            Element deviantFileIcon = deviantPage.selectFirst("img[property='contentUrl']");
-            String deviantFileUrl = deviantFileIcon != null ? deviantFileIcon.attr("src") : "";
+                    Element iconElement = searchPage.select("div[data-attrid='images universal']").get(1);
+                    String deviantPageUrl = iconElement.attr("data-lpage");
 
-            if (!deviantFileUrl.isEmpty()) {
-                String filePath = targetDirectory + "/" + fileName + ".png";
-                downloadImage(deviantFileUrl, filePath);
-                LogManager.getInstance().addLog("Icon saved at: " + filePath, false);
-            } else {
-                LogManager.getInstance().addLog("No icon found for: " + fileName, true);
+                    Document deviantPage = Jsoup.connect(deviantPageUrl).get();
+                    saveHtmlToFile(deviantPage.html(), targetDirectory, "deviant_search_result", "Deviant Page");
+                    LogManager.getInstance().addLog("Deviant sayfası kaydedildi.", false);
+
+                    Element deviantFileIcon = deviantPage.selectFirst("img[property='contentUrl']");
+                    String deviantFileUrl = deviantFileIcon != null ? deviantFileIcon.attr("src") : "";
+
+                    if (!deviantFileUrl.isEmpty()) {
+                        String filePath = targetDirectory + "/" + fileName + ".png";
+                        downloadImage(deviantFileUrl, filePath);
+                        LogManager.getInstance().addLog("Icon saved at: " + filePath, false);
+                    } else {
+                        LogManager.getInstance().addLog("No icon found for: " + fileName, true);
+                    }
+                } catch (IOException e) {
+                    LogManager.getInstance().addLog("Error fetching icon for: " + fileName, true);
+                }
+                return null;
             }
-        } catch (IOException e) {
-            LogManager.getInstance().addLog("Error fetching icon for: " + fileName, true);
-        }
+        };
+
+        Thread fetchIconThread = new Thread(fetchIconTask);
+        fetchIconThread.setDaemon(true);
+        fetchIconThread.start();
     }
 
     private static void downloadImage(String imageUrl, String filePath) {
-        String pngPath = filePath.endsWith(".png") ? filePath : filePath + ".png";
-        String icoPath = filePath.replace(".png", "").replace(".jpg", "") + ".ico";
-
         Task<Void> downloadTask = new Task<>() {
             @Override
             protected Void call() {
+                String pngPath = filePath.endsWith(".png") ? filePath : filePath + ".png";
+                String icoPath = filePath.replace(".png", "").replace(".jpg", "") + ".ico";
+
                 try {
                     URL url = new URL(imageUrl);
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();

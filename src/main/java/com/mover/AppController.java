@@ -108,17 +108,13 @@ public class AppController {
     }
 
     @FXML
-    private void executeWork() {
+    private void executeWork() throws FileNotFoundException {
         if (workDirectory == null || workDirectory.isEmpty() || !isValidDirectory(workDirectory)) {
             showErrorAlert();
             return;
         }
         VideoOrganizer.execute(this.workDirectory);
-        try {
-            fetchAndSaveIcons(videoTableView.getItems());
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        fetchAndSaveIcons(videoTableView.getItems());
     }
 
     private boolean isValidDirectory(String path) {
@@ -165,18 +161,15 @@ public class AppController {
         TitledPane videoPane = new TitledPane("Video", videoBox);
         videoPane.setExpanded(true);
 
-        // Genel Bilgiler
         addLabelToBox(generalBox, "File Name", file.getName());
         addLabelToBox(generalBox, "Format", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Format"));
         addLabelToBox(generalBox, "File Size", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "FileSize/String"));
         addLabelToBox(generalBox, "Duration", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Duration/String"));
 
-        // Video Bilgileri
         addLabelToBox(videoBox, "Resolution", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Width") + "x" + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Height"));
         addLabelToBox(videoBox, "Bit Rate", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "BitRate/String"));
         addLabelToBox(videoBox, "Codec", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "CodecID"));
 
-        // Ses Bilgileri
         VBox audioContainer = new VBox(10);
         int audioTrackCount = mediaInfo.Count_Get(MediaInfo.StreamKind.Audio);
         for (int i = 0; i < audioTrackCount; i++) {
@@ -188,7 +181,6 @@ public class AppController {
             audioContainer.getChildren().add(audioPane);
         }
 
-        // Altyazı Bilgileri
         VBox textContainer = new VBox(10);
         int textTrackCount = mediaInfo.Count_Get(MediaInfo.StreamKind.Text);
         for (int i = 0; i < textTrackCount; i++) {
@@ -206,36 +198,37 @@ public class AppController {
         mediaInfo.Close();
     }
 
-    private void fetchAndSaveIcons(ObservableList<FileInfo> fileInfoList) throws FileNotFoundException {
-        for (FileInfo fileInfo : fileInfoList) {
-            String fileName = fileInfo.getNameWithoutExtension();
-            String targetDirectory = this.workDirectory + "/" + fileName;
+    private void fetchAndSaveIcons(ObservableList<FileInfo> fileInfoList) {
 
-            File dir = new File(targetDirectory);
-            if (!dir.exists()) {
-                var ignored = dir.mkdirs();
-            }
+            for (FileInfo fileInfo : fileInfoList) {
+                String fileName = fileInfo.getNameWithoutExtension();
+                String targetDirectory = this.workDirectory + "/" + fileName;
 
-            fetchIcon(fileName, targetDirectory);
-
-            Platform.runLater(() -> {
-                File iconFile = new File(targetDirectory + "/" + fileName + ".png");
-                if (iconFile.exists()) {
-                    ImageView imageView = new ImageView(new Image(iconFile.toURI().toString()));
-                    imageView.setFitHeight(128);
-                    imageView.setFitWidth(120);
-
-                    Label nameLabel = new Label(fileName);
-                    nameLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bolder; -fx-padding: 5px;");
-
-                    HBox itemBox = new HBox(15, imageView, nameLabel);
-                    itemBox.setAlignment(Pos.CENTER_LEFT);
-                    itemBox.setPrefWidth(Region.USE_COMPUTED_SIZE);
-
-                    videoListVBox.getChildren().add(itemBox);
+                File dir = new File(targetDirectory);
+                if (!dir.exists()) {
+                    dir.mkdirs();
                 }
-            });
-        }
+
+                fetchIcon(fileName, targetDirectory);
+
+                Platform.runLater(() -> {
+                    File iconFile = new File(targetDirectory + "/" + fileName + ".png");
+                    if (iconFile.exists()) {
+                        ImageView imageView = new ImageView(new Image(iconFile.toURI().toString()));
+                        imageView.setFitHeight(128);
+                        imageView.setFitWidth(120);
+
+                        Label nameLabel = new Label(fileName);
+                        nameLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bolder; -fx-padding: 5px;");
+
+                        HBox itemBox = new HBox(15, imageView, nameLabel);
+                        itemBox.setAlignment(Pos.CENTER_LEFT);
+                        itemBox.setPrefWidth(Region.USE_COMPUTED_SIZE);
+
+                        videoListVBox.getChildren().add(itemBox);
+                    }
+                });
+            }
     }
 
     private void addLabelToBox(VBox box, String label, String value) {

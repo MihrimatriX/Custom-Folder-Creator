@@ -16,7 +16,7 @@ public class LogManager {
     public static LogManager getInstance() {
         if (instance == null) {
             instance = new LogManager();
-            logVBox = new VBox(0);
+            logVBox = new VBox(-5);
         }
         return instance;
     }
