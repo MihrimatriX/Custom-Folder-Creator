@@ -26,7 +26,6 @@ public class VideoOrganizer {
                         Path destinationFile = videoFolder.resolve(fileName);
                         Files.move(filePath, destinationFile, StandardCopyOption.REPLACE_EXISTING);
 
-                        // Video detaylarını al ve bir TXT dosyasına yaz
                         String videoDetails = getVideoDetails(destinationFile.toString());
                         Path detailsPath = videoFolder.resolve("video_details.txt");
                         Files.write(detailsPath, videoDetails.getBytes());
@@ -91,27 +90,23 @@ public class VideoOrganizer {
         mediaInfo.Open(filePath);
 
         String details = "Dosya: " + filePath + "\n" +
-                // Genel Bilgiler
                 "Dosya Boyutu: " + mediaInfo.Get(MediaInfo.StreamKind.General, 0, "FileSize/String") + "\n" +
                 "Süre: " + mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Duration/String") + "\n" +
                 "Format: " + mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Format") + "\n" +
                 "Toplam Bit Hızı: " + mediaInfo.Get(MediaInfo.StreamKind.General, 0, "OverallBitRate/String") + "\n" +
 
-                // Video Bilgileri
                 "Çözünürlük: " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Width") + "x" + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Height") + "\n" +
                 "Video Codec: " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "CodecID") + "\n" +
                 "Video Bit Hızı: " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "BitRate/String") + "\n" +
                 "Kare Hızı: " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "FrameRate/String") + "\n" +
                 "Görüntü En-Boy Oranı: " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "DisplayAspectRatio/String") + "\n" +
 
-                // Ses Bilgileri
                 "Ses Codec: " + mediaInfo.Get(MediaInfo.StreamKind.Audio, 0, "CodecID") + "\n" +
                 "Ses Kanalları: " + mediaInfo.Get(MediaInfo.StreamKind.Audio, 0, "Channel(s)") + "\n" +
                 "Ses Bit Hızı: " + mediaInfo.Get(MediaInfo.StreamKind.Audio, 0, "BitRate/String") + "\n" +
                 "Ses Örnekleme Hızı: " + mediaInfo.Get(MediaInfo.StreamKind.Audio, 0, "SamplingRate/String") + "\n" +
                 "Ses Dili: " + mediaInfo.Get(MediaInfo.StreamKind.Audio, 0, "Language/String") + "\n" +
 
-                // Altyazı Bilgileri (Dil)
                 "Altyazı Dili: " + mediaInfo.Get(MediaInfo.StreamKind.Text, 0, "Language/String") + "\n";
 
         mediaInfo.Close();

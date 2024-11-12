@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static com.mover.VideoOrganizer.displayVideoDetailsPrint;
@@ -58,7 +59,7 @@ public class AppController {
 
     @FXML
     private void initialize() {
-        String darkTheme = App.class.getResource("/dark-theme.css").toExternalForm();
+        String darkTheme = Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm();
         videoTableView.getParent().getStylesheets().add(darkTheme);
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("nameWithoutExtension"));
         extensionColumn.setCellValueFactory(new PropertyValueFactory<>("extension"));
@@ -199,36 +200,35 @@ public class AppController {
     }
 
     private void fetchAndSaveIcons(ObservableList<FileInfo> fileInfoList) {
+        for (FileInfo fileInfo : fileInfoList) {
+            String fileName = fileInfo.getNameWithoutExtension();
+            String targetDirectory = this.workDirectory + "/" + fileName;
 
-            for (FileInfo fileInfo : fileInfoList) {
-                String fileName = fileInfo.getNameWithoutExtension();
-                String targetDirectory = this.workDirectory + "/" + fileName;
-
-                File dir = new File(targetDirectory);
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-
-                fetchIcon(fileName, targetDirectory);
-
-                Platform.runLater(() -> {
-                    File iconFile = new File(targetDirectory + "/" + fileName + ".png");
-                    if (iconFile.exists()) {
-                        ImageView imageView = new ImageView(new Image(iconFile.toURI().toString()));
-                        imageView.setFitHeight(128);
-                        imageView.setFitWidth(120);
-
-                        Label nameLabel = new Label(fileName);
-                        nameLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bolder; -fx-padding: 5px;");
-
-                        HBox itemBox = new HBox(15, imageView, nameLabel);
-                        itemBox.setAlignment(Pos.CENTER_LEFT);
-                        itemBox.setPrefWidth(Region.USE_COMPUTED_SIZE);
-
-                        videoListVBox.getChildren().add(itemBox);
-                    }
-                });
+            File dir = new File(targetDirectory);
+            if (!dir.exists()) {
+                final boolean ignored = dir.mkdirs();
             }
+
+            fetchIcon(fileName, targetDirectory);
+
+            Platform.runLater(() -> {
+                File iconFile = new File(targetDirectory + "/" + fileName + ".png");
+                if (iconFile.exists()) {
+                    ImageView imageView = new ImageView(new Image(iconFile.toURI().toString()));
+                    imageView.setFitHeight(128);
+                    imageView.setFitWidth(120);
+
+                    Label nameLabel = new Label(fileName);
+                    nameLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bolder; -fx-padding: 5px;");
+
+                    HBox itemBox = new HBox(15, imageView, nameLabel);
+                    itemBox.setAlignment(Pos.CENTER_LEFT);
+                    itemBox.setPrefWidth(Region.USE_COMPUTED_SIZE);
+
+                    videoListVBox.getChildren().add(itemBox);
+                }
+            });
+        }
     }
 
     private void addLabelToBox(VBox box, String label, String value) {
