@@ -79,10 +79,8 @@ public class WebScraper {
             LogManager.getInstance().addLog("PNG image downloaded successfully: " + pngPath, false);
 
             BufferedImage originalImage = ImageIO.read(new File(pngPath));
-            BufferedImage resizedImage = resizeImage(originalImage);
-
             try (FileOutputStream icoOutputStream = new FileOutputStream(icoPath)) {
-                ICOEncoder.write(resizedImage, icoOutputStream);
+                ICOEncoder.write(originalImage, icoOutputStream);
             }
             LogManager.getInstance().addLog("ICO image created successfully: " + icoPath, false);
 
@@ -92,13 +90,5 @@ public class WebScraper {
         } catch (IOException e) {
             LogManager.getInstance().addLog("Error downloading or converting image: ", true);
         }
-    }
-
-    private static BufferedImage resizeImage(BufferedImage originalImage) {
-        BufferedImage resizedImage = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = resizedImage.createGraphics();
-        g.drawImage(originalImage, 0, 0, 256, 256, null);
-        g.dispose();
-        return resizedImage;
     }
 }

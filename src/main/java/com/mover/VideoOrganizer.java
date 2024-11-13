@@ -96,7 +96,8 @@ public class VideoOrganizer {
                 "Toplam Bit Hızı: " + mediaInfo.Get(MediaInfo.StreamKind.General, 0, "OverallBitRate/String") + "\n" +
 
                 "Çözünürlük: " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Width") + "x" + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Height") + "\n" +
-                "Video Codec: " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "CodecID") + "\n" +
+                "Video Codec: " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Video_Codec_List") + "\n" +
+                ": " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "") + "\n" +
                 "Video Bit Hızı: " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "BitRate/String") + "\n" +
                 "Kare Hızı: " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "FrameRate/String") + "\n" +
                 "Görüntü En-Boy Oranı: " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "DisplayAspectRatio/String") + "\n" +

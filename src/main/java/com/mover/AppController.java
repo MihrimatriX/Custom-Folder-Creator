@@ -3,6 +3,7 @@ package com.mover;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -17,7 +18,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,7 +74,7 @@ public class AppController {
         detailsVBox.setMaxHeight(Region.USE_COMPUTED_SIZE);
 
         LogManager.getInstance().setLogTextFlow(scrollPane);
-        LogManager.getInstance().addLog("Uygulama başlatıldı.", false);
+        LogManager.getInstance().addLog("App Started.", false);
 
         videoTableView.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
@@ -98,7 +98,7 @@ public class AppController {
     @FXML
     private void selectFolder() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Klasör Seçin");
+        directoryChooser.setTitle("Select Folder");
         Path selectedFolder = directoryChooser.showDialog(null).toPath();
 
         String selectedFolderPath = selectedFolder.toString();
@@ -109,7 +109,7 @@ public class AppController {
     }
 
     @FXML
-    private void executeWork() throws FileNotFoundException {
+    private void executeWork() {
         if (workDirectory == null || workDirectory.isEmpty() || !isValidDirectory(workDirectory)) {
             showErrorAlert();
             return;
@@ -145,7 +145,7 @@ public class AppController {
                     });
             videoTableView.setItems(fileInfoList);
         } catch (Exception e) {
-            LogManager.getInstance().addLog("Dosya Listeleme sırasında bir hata oluştur", true);
+            LogManager.getInstance().addLog("Error from files listing.", true);
         }
     }
 
@@ -167,7 +167,7 @@ public class AppController {
         addLabelToBox(generalBox, "File Size", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "FileSize/String"));
         addLabelToBox(generalBox, "Duration", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Duration/String"));
 
-        addLabelToBox(videoBox, "Resolution", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Width") + "x" + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Height"));
+        addLabelToBox(videoBox, "Resolution", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Width") + " x " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Height"));
         addLabelToBox(videoBox, "Bit Rate", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "BitRate/String"));
         addLabelToBox(videoBox, "Codec", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "CodecID"));
 
@@ -200,35 +200,49 @@ public class AppController {
     }
 
     private void fetchAndSaveIcons(ObservableList<FileInfo> fileInfoList) {
-        for (FileInfo fileInfo : fileInfoList) {
-            String fileName = fileInfo.getNameWithoutExtension();
-            String targetDirectory = this.workDirectory + "/" + fileName;
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                for (FileInfo fileInfo : fileInfoList) {
+                    String fileName = fileInfo.getNameWithoutExtension();
+                    String targetDirectory = workDirectory + "/" + fileName;
 
-            File dir = new File(targetDirectory);
-            if (!dir.exists()) {
-                final boolean ignored = dir.mkdirs();
-            }
+                    File dir = new File(targetDirectory);
+                    if (!dir.exists()) {
+                        var ignored = dir.mkdirs();
+                    }
 
-            fetchIcon(fileName, targetDirectory);
+                    fetchIcon(fileName, targetDirectory);
 
-            Platform.runLater(() -> {
-                File iconFile = new File(targetDirectory + "/" + fileName + ".png");
-                if (iconFile.exists()) {
-                    ImageView imageView = new ImageView(new Image(iconFile.toURI().toString()));
-                    imageView.setFitHeight(128);
-                    imageView.setFitWidth(120);
+                    Platform.runLater(() -> {
+                        File iconFile = new File(targetDirectory + "/" + fileName + ".png");
+                        if (iconFile.exists()) {
+                            ImageView imageView = new ImageView(new Image(iconFile.toURI().toString()));
+                            imageView.setFitHeight(128);
+                            imageView.setFitWidth(120);
 
-                    Label nameLabel = new Label(fileName);
-                    nameLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bolder; -fx-padding: 5px;");
+                            Label nameLabel = new Label(fileName);
+                            nameLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bolder; -fx-padding: 5px;");
 
-                    HBox itemBox = new HBox(15, imageView, nameLabel);
-                    itemBox.setAlignment(Pos.CENTER_LEFT);
-                    itemBox.setPrefWidth(Region.USE_COMPUTED_SIZE);
+                            HBox itemBox = new HBox(15, imageView, nameLabel);
+                            itemBox.setAlignment(Pos.CENTER_LEFT);
+                            itemBox.setPrefWidth(Region.USE_COMPUTED_SIZE);
 
-                    videoListVBox.getChildren().add(itemBox);
+                            videoListVBox.getChildren().add(itemBox);
+                        }
+                    });
                 }
-            });
-        }
+                return null;
+            }
+        };
+        task.setOnSucceeded(event -> Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Successfully Completed");
+            alert.setHeaderText(null);
+            alert.setContentText("All files success created.");
+            alert.showAndWait();
+        }));
+        new Thread(task).start();
     }
 
     private void addLabelToBox(VBox box, String label, String value) {

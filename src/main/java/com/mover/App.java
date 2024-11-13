@@ -16,16 +16,27 @@ public class App extends Application {
     }
 
     public static void test() throws IOException {
-        String directoryPath = "C:\\Users\\AFU\\Desktop\\test";
+        String directoryPath = "C:\\Users\\AFU\\Desktop\\Test Folder";
+        File directory = new File(directoryPath);
+
+        if (!directory.exists()) {
+            if (directory.mkdirs()) {
+                System.out.println("Klasör başarıyla oluşturuldu: " + directoryPath);
+            } else {
+                System.out.println("Klasör oluşturulamadı: " + directoryPath);
+            }
+        } else {
+            System.out.println("Klasör zaten mevcut: " + directoryPath);
+        }
 
         String[] movieTitles = {
             //"Küçük Askerler", "Liar Liar", "Lilo And Stitch 2 Stitch Has A Glitch", "Lilo And Stitch",
             "Lord of War", "Luck", "Luis Ve Uzaylı Dostları", "Malcolm X", "Marslı", "Mary and Max",
             //"Maskeli Beşler Irak", "Megamind The Doom Syndicate", "Megamind", "Midway", "Migration",
-            "Missing Link", "Moana", "Monsters vs Aliens", "Napoleon", "Oblivion", "Oppenheimer",
-            "Otel Transilvanya 3", "Over the Moon", "Oyuncak Hikayesi 2", "Oyuncak Hikayesi 3",
-            "Oyuncak Hikayesi 4", "Paranorman", "Peter Rabbit 2", "Police Academy 2", "Police Academy 3",
-            "Police Academy 5", "Police Academy 6 City Under Siege", "Princess Mononoke", "Problem Child"
+            //"Missing Link", "Moana", "Monsters vs Aliens", "Napoleon", "Oblivion", "Oppenheimer",
+            //"Otel Transilvanya 3", "Over the Moon", "Oyuncak Hikayesi 2", "Oyuncak Hikayesi 3",
+            //"Oyuncak Hikayesi 4", "Paranorman", "Peter Rabbit 2", "Police Academy 2", "Police Academy 3",
+            //"Police Academy 5", "Police Academy 6 City Under Siege", "Princess Mononoke", "Problem Child"
             //"Prometheus", "Rat Race", "Robot Ron Sorun Var", "Rumble", "San Andreas Fayı", "San Andreas Fayı",
             //"Saving Private Ryan", "Se7en", "Shark Tale", "Shrek The Halls", "Son of Bigfoot",
             //"Sonic Hedgehog 2", "Source Code", "Spirited Away", "Stop Or My Mom Will Shoot",
