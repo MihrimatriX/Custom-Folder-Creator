@@ -1,14 +1,11 @@
-module com.mover.foldercreator {
+module com.creator {
+    requires javafx.controls;
     requires javafx.fxml;
-    requires org.controlsfx.controls;
-    requires org.kordamp.bootstrapfx.core;
-    requires com.sun.jna;
-    requires javafx.web;
-    requires jdk.jsobject;
-    requires org.jsoup;
     requires java.desktop;
+    requires org.jsoup;
     requires image4j;
+    requires com.sun.jna;
 
-    opens com.mover to javafx.fxml;
-    exports com.mover;
+    opens com.creator to javafx.fxml;
+    exports com.creator;
 }
