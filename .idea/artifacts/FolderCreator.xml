@@ -72,6 +72,7 @@
       <element id="file-copy" path="$PROJECT_DIR$/src/main/lib/bin/ucrtbase.dll" />
       <element id="file-copy" path="$PROJECT_DIR$/src/main/lib/bin/vcruntime140.dll" />
       <element id="file-copy" path="$PROJECT_DIR$/src/main/lib/bin/vcruntime140_1.dll" />
+      <element id="module-output" name="Custom-Folder-Creator" />
     </root>
   </artifact>
 </component>
