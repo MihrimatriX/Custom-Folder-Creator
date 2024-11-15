@@ -40,7 +40,7 @@ public class VideoOrganizer {
                         Path desktopIniPath = videoFolder.resolve("desktop.ini");
 
                         try (FileOutputStream fos = new FileOutputStream(desktopIniPath.toFile())) {
-                            fos.write(desktopIniContent.getBytes(StandardCharsets.ISO_8859_1));
+                            fos.write(desktopIniContent.getBytes(StandardCharsets.UTF_8));
                         } catch (IOException e) {
                             LogManager.getInstance().addLog("desktop.ini dosyası yazılırken hata oluştu.", true);
                         }
