@@ -25,14 +25,14 @@ public class WebScraper {
 
         try {
             Document searchPage = Jsoup.connect(searchUrl).get();
-            saveHtmlToFile(searchPage.html(), targetDirectory, "google_search_result", "Google Page");
+            saveHtmlToFile(searchPage.html(), targetDirectory, "Google-Search-Result", "Google Page");
             LogManager.getInstance().addLog("Google sayfası kaydedildi.", false);
 
             Element iconElement = searchPage.select("div[data-attrid='images universal']").get(1);
             String deviantPageUrl = iconElement.attr("data-lpage");
 
             Document deviantPage = Jsoup.connect(deviantPageUrl).get();
-            saveHtmlToFile(deviantPage.html(), targetDirectory, "deviant_search_result", "Deviant Page");
+            saveHtmlToFile(deviantPage.html(), targetDirectory, "Deviant-Search-Result", "Deviant Page");
             LogManager.getInstance().addLog("Deviant sayfası kaydedildi.", false);
 
             Element deviantFileIcon = deviantPage.selectFirst("img[property='contentUrl']");
@@ -79,8 +79,12 @@ public class WebScraper {
             LogManager.getInstance().addLog("PNG image downloaded successfully: " + pngPath, false);
 
             BufferedImage originalImage = ImageIO.read(new File(pngPath));
+            BufferedImage resizedImage = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = resizedImage.createGraphics();
+            g.drawImage(originalImage, 0, 0, 256, 256, null);
+            g.dispose();
             try (FileOutputStream icoOutputStream = new FileOutputStream(icoPath)) {
-                ICOEncoder.write(originalImage, icoOutputStream);
+                ICOEncoder.write(resizedImage, icoOutputStream);
             }
             LogManager.getInstance().addLog("ICO image created successfully: " + icoPath, false);
 

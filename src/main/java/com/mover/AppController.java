@@ -7,6 +7,8 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -17,6 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 
+import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,7 +27,6 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static com.mover.VideoOrganizer.displayVideoDetailsPrint;
 import static com.mover.WebScraper.fetchIcon;
 
 public class AppController {
@@ -81,7 +83,6 @@ public class AppController {
                 FileInfo selectedFile = videoTableView.getSelectionModel().getSelectedItem();
                 if (selectedFile != null) {
                     displayVideoDetails(new File(selectedFile.getPath()));
-                    displayVideoDetailsPrint(new File(selectedFile.getPath()));
                 } else {
                     clearDetails();
                 }
@@ -166,10 +167,44 @@ public class AppController {
         addLabelToBox(generalBox, "Format", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Format"));
         addLabelToBox(generalBox, "File Size", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "FileSize/String"));
         addLabelToBox(generalBox, "Duration", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Duration/String"));
+        addLabelToBox(generalBox, "Overall Bit Rate", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "OverallBitRate/String"));
+        addLabelToBox(generalBox, "Title", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Title"));
+        addLabelToBox(generalBox, "Album", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Album"));
+        addLabelToBox(generalBox, "Track Number", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Track/Position"));
+        addLabelToBox(generalBox, "Artist", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Performer"));
+        addLabelToBox(generalBox, "Composer", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Composer"));
+        addLabelToBox(generalBox, "Publisher", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Publisher"));
+        addLabelToBox(generalBox, "Genre", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Genre"));
+        addLabelToBox(generalBox, "Recorded Date", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Recorded_Date"));
+        addLabelToBox(generalBox, "Encoded Date", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Encoded_Date"));
+        addLabelToBox(generalBox, "Tagged Date", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Tagged_Date"));
+        addLabelToBox(generalBox, "Writing Application", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Encoded_Application"));
+        addLabelToBox(generalBox, "Writing Library", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Encoded_Library"));
+        addLabelToBox(generalBox, "Comment", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Comment"));
+        addLabelToBox(generalBox, "Description", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Description"));
+        addLabelToBox(generalBox, "Copyright", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Copyright"));
+        addLabelToBox(generalBox, "Language", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Language"));
+        addLabelToBox(generalBox, "Keywords", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Keywords"));
+        addLabelToBox(generalBox, "Producer", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Producer"));
+        addLabelToBox(generalBox, "Encoded By", mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Encoded_By"));
 
         addLabelToBox(videoBox, "Resolution", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Width") + " x " + mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Height"));
+        addLabelToBox(videoBox, "Frame Rate", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "FrameRate/String"));
+        addLabelToBox(videoBox, "Frame Count", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "FrameCount"));
+        addLabelToBox(videoBox, "Aspect Ratio", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "DisplayAspectRatio/String"));
+        addLabelToBox(videoBox, "Pixel Aspect Ratio", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "PixelAspectRatio"));
+        addLabelToBox(videoBox, "Scan Type", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "ScanType"));
+        addLabelToBox(videoBox, "Color Space", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "ColorSpace"));
+        addLabelToBox(videoBox, "Chroma Subsampling", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "ChromaSubsampling"));
+        addLabelToBox(videoBox, "HDR Format", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "HDR_Format"));
+        addLabelToBox(videoBox, "Color Primaries", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "ColorPrimaries"));
+        addLabelToBox(videoBox, "Transfer Characteristics", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Transfer_Characteristics"));
+        addLabelToBox(videoBox, "Matrix Coefficients", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Matrix_Coefficients"));
         addLabelToBox(videoBox, "Bit Rate", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "BitRate/String"));
         addLabelToBox(videoBox, "Codec", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "CodecID"));
+        addLabelToBox(videoBox, "Language", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Language"));
+        addLabelToBox(videoBox, "Format Profile", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Format_Profile"));
+        addLabelToBox(videoBox, "Encoded Library", mediaInfo.Get(MediaInfo.StreamKind.Video, 0, "Encoded_Library/String"));
 
         VBox audioContainer = new VBox(10);
         int audioTrackCount = mediaInfo.Count_Get(MediaInfo.StreamKind.Audio);
@@ -177,6 +212,19 @@ public class AppController {
             VBox audioTrackBox = new VBox(5);
             addLabelToBox(audioTrackBox, "Audio Format", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "Format"));
             addLabelToBox(audioTrackBox, "Channels", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "Channel(s)"));
+            addLabelToBox(audioTrackBox, "Channel Layout", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "ChannelLayout"));
+            addLabelToBox(audioTrackBox, "Channel Positions", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "ChannelPositions"));
+            addLabelToBox(audioTrackBox, "Sampling Rate", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "SamplingRate/String"));
+            addLabelToBox(audioTrackBox, "Bit Depth", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "BitDepth/String"));
+            addLabelToBox(audioTrackBox, "Bit Rate", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "BitRate/String"));
+            addLabelToBox(audioTrackBox, "Bit Rate Mode", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "BitRate_Mode"));
+            addLabelToBox(audioTrackBox, "Compression Mode", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "Compression_Mode"));
+            addLabelToBox(audioTrackBox, "Compression Ratio", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "Compression_Ratio"));
+            addLabelToBox(audioTrackBox, "Delay", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "Delay/String"));
+            addLabelToBox(audioTrackBox, "Stream Size", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "StreamSize/String"));
+            addLabelToBox(audioTrackBox, "Duration", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "Duration/String"));
+            addLabelToBox(audioTrackBox, "Language", mediaInfo.Get(MediaInfo.StreamKind.Audio, i, "Language"));
+
             TitledPane audioPane = new TitledPane("Audio Track " + (i + 1), audioTrackBox);
             audioPane.setExpanded(true);
             audioContainer.getChildren().add(audioPane);
@@ -188,6 +236,13 @@ public class AppController {
             VBox textTrackBox = new VBox(5);
             addLabelToBox(textTrackBox, "Text Format", mediaInfo.Get(MediaInfo.StreamKind.Text, i, "Format"));
             addLabelToBox(textTrackBox, "Language", mediaInfo.Get(MediaInfo.StreamKind.Text, i, "Language"));
+            addLabelToBox(textTrackBox, "Codec", mediaInfo.Get(MediaInfo.StreamKind.Text, i, "CodecID"));
+            addLabelToBox(textTrackBox, "Title", mediaInfo.Get(MediaInfo.StreamKind.Text, i, "Title"));
+            addLabelToBox(textTrackBox, "Delay", mediaInfo.Get(MediaInfo.StreamKind.Text, i, "Delay/String"));
+            addLabelToBox(textTrackBox, "Stream Size", mediaInfo.Get(MediaInfo.StreamKind.Text, i, "StreamSize/String"));
+            addLabelToBox(textTrackBox, "Encoding", mediaInfo.Get(MediaInfo.StreamKind.Text, i, "Encoding"));
+            addLabelToBox(textTrackBox, "Format Info", mediaInfo.Get(MediaInfo.StreamKind.Text, i, "Format/Info"));
+
             TitledPane textPane = new TitledPane("Subtitle Track " + (i + 1), textTrackBox);
             textPane.setExpanded(true);
             textContainer.getChildren().add(textPane);
@@ -227,7 +282,6 @@ public class AppController {
                             HBox itemBox = new HBox(15, imageView, nameLabel);
                             itemBox.setAlignment(Pos.CENTER_LEFT);
                             itemBox.setPrefWidth(Region.USE_COMPUTED_SIZE);
-
                             videoListVBox.getChildren().add(itemBox);
                         }
                     });
@@ -241,6 +295,19 @@ public class AppController {
             alert.setHeaderText(null);
             alert.setContentText("All files success created.");
             alert.showAndWait();
+
+            try {
+                File dirToOpen = new File(workDirectory);
+                if (dirToOpen.exists()) {
+                    Desktop.getDesktop().open(dirToOpen);
+                }
+            } catch (Exception e) {
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Error");
+                errorAlert.setHeaderText("Unable to open folder");
+                errorAlert.setContentText("An error occurred while trying to open the folder.");
+                errorAlert.showAndWait();
+            }
         }));
         new Thread(task).start();
     }
