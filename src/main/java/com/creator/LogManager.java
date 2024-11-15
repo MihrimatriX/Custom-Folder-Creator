@@ -11,7 +11,8 @@ public class LogManager {
     private static VBox logVBox;
     private static ScrollPane logScrollPane;
 
-    private LogManager() {}
+    private LogManager() {
+    }
 
     public static LogManager getInstance() {
         if (instance == null) {
@@ -30,11 +31,11 @@ public class LogManager {
             Text text = new Text(message + "\n");
             text.setWrappingWidth(0);
             text.setStyle("-fx-font-size: 11px;");
-                if (isError) {
-                    text.setFill(Color.RED);
-                } else {
-                    text.setFill(Color.WHITE);
-                }
+            if (isError) {
+                text.setFill(Color.RED);
+            } else {
+                text.setFill(Color.WHITE);
+            }
             logVBox.getChildren().add(text);
             logScrollPane.setContent(logVBox);
         });

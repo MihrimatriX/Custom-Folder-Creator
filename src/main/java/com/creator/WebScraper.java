@@ -17,11 +17,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.creator.HtmlHelper.saveHtmlToFile;
+import static com.creator.VideoOrganizer.convertTurkishChars;
 
 public class WebScraper {
     public static void fetchIcon(String fileName, String targetDirectory) {
         String baseUrl = "https://www.google.com";
-        String searchUrl = baseUrl + "/search?q=" + fileName + URLEncoder.encode(" folder icon") + "&udm=2";
+        String searchUrl = baseUrl + "/search?q=" + convertTurkishChars(fileName) + URLEncoder.encode(" folder icon") + "&udm=2";
 
         try {
             Document searchPage = Jsoup.connect(searchUrl).get();
@@ -39,7 +40,8 @@ public class WebScraper {
             String deviantFileUrl = deviantFileIcon != null ? deviantFileIcon.attr("src") : "";
 
             if (!deviantFileUrl.isEmpty()) {
-                String filePath = targetDirectory + "/" + fileName + ".png";
+                String sanitizedFileName = convertTurkishChars(fileName);
+                String filePath = targetDirectory + "/" + sanitizedFileName + ".png";
                 downloadImage(deviantFileUrl, filePath);
                 LogManager.getInstance().addLog("Icon saved at: " + filePath, false);
             } else {
@@ -51,8 +53,9 @@ public class WebScraper {
     }
 
     private static void downloadImage(String imageUrl, String filePath) {
-        String pngPath = filePath.endsWith(".png") ? filePath : filePath + ".png";
-        String icoPath = filePath.replace(".png", "").replace(".jpg", "") + ".ico";
+        String sanitizedFilePath = convertTurkishChars(filePath);
+        String pngPath = sanitizedFilePath.endsWith(".png") ? sanitizedFilePath : sanitizedFilePath + ".png";
+        String icoPath = sanitizedFilePath.replace(".png", "").replace(".jpg", "") + ".ico";
 
         try {
             URL url = new URL(imageUrl);

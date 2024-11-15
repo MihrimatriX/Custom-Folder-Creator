@@ -7,9 +7,34 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class VideoOrganizer {
+    public static String convertTurkishChars(String input) {
+        Map<Character, Character> turkishCharMap = new HashMap<>();
+        turkishCharMap.put('ç', 'c');
+        turkishCharMap.put('Ç', 'C');
+        turkishCharMap.put('ğ', 'g');
+        turkishCharMap.put('Ğ', 'G');
+        turkishCharMap.put('ı', 'i');
+        turkishCharMap.put('İ', 'I');
+        turkishCharMap.put('ö', 'o');
+        turkishCharMap.put('Ö', 'O');
+        turkishCharMap.put('ş', 's');
+        turkishCharMap.put('Ş', 'S');
+        turkishCharMap.put('ü', 'u');
+        turkishCharMap.put('Ü', 'U');
+
+        StringBuilder result = new StringBuilder();
+        for (char c : input.toCharArray()) {
+            result.append(turkishCharMap.getOrDefault(c, c));
+        }
+
+        return result.toString();
+    }
+
     public static void execute(String path) {
         try (Stream<Path> paths = Files.list(Paths.get(path))) {
             paths.filter(Files::isRegularFile).forEach(filePath -> {
@@ -32,11 +57,11 @@ public class VideoOrganizer {
                         Files.write(detailsPath, videoDetails.getBytes());
 
                         String desktopIniContent = "[.ShellClassInfo]\n" +
-                                "IconFile=" + fileName.split("\\.")[0] + ".ico\n" +
+                                "IconFile=" + convertTurkishChars(fileName.split("\\.")[0]) + ".ico\n" +
                                 "IconIndex=0\n" +
                                 "ConfirmFileOp=0\n" +
                                 "NoSharing=1\n" +
-                                "InfoTip=This " + fileName.split("\\.")[0] + " movie\n";
+                                "InfoTip=This " + convertTurkishChars(fileName.split("\\.")[0]) + " movie\n";
                         Path desktopIniPath = videoFolder.resolve("desktop.ini");
 
                         try (FileOutputStream fos = new FileOutputStream(desktopIniPath.toFile())) {

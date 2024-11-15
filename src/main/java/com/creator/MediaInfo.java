@@ -34,7 +34,8 @@ class MediaInfo {
                     }
                 }
             }
-        } catch (LinkageError ignored) { }
+        } catch (LinkageError ignored) {
+        }
     }
 
     private Pointer Handle;
@@ -162,9 +163,11 @@ class MediaInfo {
         Finalized(0x08);
 
         private final int value;
+
         Status(int value) {
             this.value = value;
         }
+
         public int getValue(int value) {
             return value;
         }
@@ -180,17 +183,29 @@ class MediaInfo {
         ));
 
         Pointer New();
+
         void Delete(Pointer Handle);
+
         int Open(Pointer Handle, WString file);
+
         int Open_Buffer_Init(Pointer handle, long length, long offset);
+
         int Open_Buffer_Continue(Pointer handle, byte[] buffer, int size);
+
         long Open_Buffer_Continue_GoTo_Get(Pointer handle);
+
         int Open_Buffer_Finalize(Pointer handle);
+
         void Close(Pointer Handle);
+
         WString Inform(Pointer Handle, int Reserved);
+
         WString Get(Pointer Handle, int StreamKind, int StreamNumber, WString parameter, int infoKind, int searchKind);
+
         WString GetI(Pointer Handle, int StreamKind, int StreamNumber, int parameterIndex, int infoKind);
+
         int Count_Get(Pointer Handle, int StreamKind, int StreamNumber);
+
         WString Option(Pointer Handle, WString option, WString value);
     }
 }
