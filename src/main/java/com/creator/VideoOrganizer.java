@@ -36,16 +36,24 @@ public class VideoOrganizer {
     }
 
     public static void execute(String path) {
-        try (Stream<Path> paths = Files.list(Paths.get(path))) {
+        try (Stream<Path> paths = Files.list(Paths.get(normalizePath(path.trim())))) {
             paths.filter(Files::isRegularFile).forEach(filePath -> {
-                String fileName = filePath.getFileName().toString();
+                String fileName = normalizePath(filePath.getFileName().toString().trim());
 
                 if (fileName.endsWith(".mkv") ||
                         fileName.endsWith(".mp4") ||
-                        fileName.endsWith(".avi")) {
-                    String videoName = fileName.substring(0, fileName.lastIndexOf('.'));
+                        fileName.endsWith(".avi") ||
+                        fileName.endsWith(".rar") ||
+                        fileName.endsWith(".exe") ||
+                        fileName.endsWith(".7z")  ||
+                        fileName.endsWith(".ts")  ||
+                        fileName.endsWith(".mov") ||
+                        fileName.endsWith(".iso") ||
+                        fileName.endsWith(".zip")) {
 
-                    Path videoFolder = Paths.get(path, videoName);
+                    String videoName = fileName.substring(0, fileName.lastIndexOf('.')).trim();
+
+                    Path videoFolder = Paths.get(normalizePath(path), videoName);
                     try {
                         Files.createDirectories(videoFolder);
 
@@ -57,11 +65,11 @@ public class VideoOrganizer {
                         Files.write(detailsPath, videoDetails.getBytes());
 
                         String desktopIniContent = "[.ShellClassInfo]\n" +
-                                "IconFile=" + convertTurkishChars(fileName.split("\\.")[0]) + ".ico\n" +
+                                "IconFile=" + convertTurkishChars(videoName) + ".ico\n" +
                                 "IconIndex=0\n" +
                                 "ConfirmFileOp=0\n" +
                                 "NoSharing=1\n" +
-                                "InfoTip=This " + convertTurkishChars(fileName.split("\\.")[0]) + " movie\n";
+                                "InfoTip=This " + convertTurkishChars(videoName) + " movie\n";
                         Path desktopIniPath = videoFolder.resolve("desktop.ini");
 
                         try (FileOutputStream fos = new FileOutputStream(desktopIniPath.toFile())) {
@@ -110,13 +118,17 @@ public class VideoOrganizer {
                         Files.write(runBatPath, runBatContent.getBytes());
                         LogManager.getInstance().addLog(videoName + " için klasör ve dosyalar oluşturuldu.", false);
                     } catch (IOException | InterruptedException e) {
-                        LogManager.getInstance().addLog("Klasör oluşturma hatası. " , true);
+                        LogManager.getInstance().addLog("Klasör oluşturma hatası. ", true);
                     }
                 }
             });
         } catch (IOException e) {
             LogManager.getInstance().addLog("Klasör okuma hatası.", true);
         }
+    }
+
+    private static String normalizePath(String path) {
+        return path.replaceAll("[^\\x20-\\x7E]", "").trim();
     }
 
     private static String getVideoDetails(String filePath) {

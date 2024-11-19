@@ -115,7 +115,7 @@ public class AppController {
             showErrorAlert();
             return;
         }
-        VideoOrganizer.execute(this.workDirectory);
+        VideoOrganizer.execute(this.workDirectory.trim());
         fetchAndSaveIcons(videoTableView.getItems());
     }
 
@@ -136,7 +136,7 @@ public class AppController {
         ObservableList<FileInfo> fileInfoList = FXCollections.observableArrayList();
         try (Stream<File> paths = Files.list(Paths.get(directory.toURI())).map(Path::toFile)) {
             paths.filter(File::isFile)
-                    .filter(file -> file.getName().matches(".*\\.(mkv|mp4|avi|ts|mov)$"))
+                    .filter(file -> file.getName().matches(".*\\.(mkv|mp4|avi|ts|mov|zip|rar|7z|iso|exe)$"))
                     .sorted((file1, file2) -> file1.getName().compareToIgnoreCase(file2.getName()))
                     .forEach(file -> {
                         String fileName = file.getName();
