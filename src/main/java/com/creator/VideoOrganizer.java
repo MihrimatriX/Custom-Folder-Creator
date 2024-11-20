@@ -136,7 +136,6 @@ public class VideoOrganizer {
         mediaInfo.Open(filePath);
 
         String details = "Dosya: " + filePath + "\n" +
-
                 "Dosya Boyutu: " + mediaInfo.Get(MediaInfo.StreamKind.General, 0, "FileSize/String") + "\n" +
                 "Süre: " + mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Duration/String") + "\n" +
                 "Format: " + mediaInfo.Get(MediaInfo.StreamKind.General, 0, "Format") + "\n" +
@@ -179,7 +178,6 @@ public class VideoOrganizer {
                 "Altyazı Kodlama: " + mediaInfo.Get(MediaInfo.StreamKind.Text, 0, "Encoding") + "\n" +
                 "Gecikme: " + mediaInfo.Get(MediaInfo.StreamKind.Text, 0, "Delay/String") + "\n" +
                 "Altyazı Boyutu: " + mediaInfo.Get(MediaInfo.StreamKind.Text, 0, "StreamSize/String") + "\n";
-
         mediaInfo.Close();
         return details;
     }
