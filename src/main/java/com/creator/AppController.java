@@ -161,7 +161,6 @@ public class AppController {
         }
     }
 
-
     private void displayVideoDetails(File file) {
         MediaInfo mediaInfo = new MediaInfo();
         mediaInfo.Open(file.getAbsolutePath());
