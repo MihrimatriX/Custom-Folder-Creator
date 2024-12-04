@@ -135,7 +135,7 @@ public class AppController {
     private void listFiles(File directory) {
         ObservableList<FileInfo> fileInfoList = FXCollections.observableArrayList();
         try (Stream<File> paths = Files.list(Paths.get(directory.toURI())).map(Path::toFile)) {
-            paths.filter(File::isFile)
+            paths.filter(file -> file.isFile())
                     .filter(file -> file.getName().matches(".*\\.(mkv|mp4|avi|ts|mov|zip|rar|7z|iso|exe)$"))
                     .sorted((file1, file2) -> file1.getName().compareToIgnoreCase(file2.getName()))
                     .forEach(file -> {
@@ -144,11 +144,23 @@ public class AppController {
                         long fileSize = file.length();
                         fileInfoList.add(new FileInfo(fileName, fileExtension, fileSize, file.getAbsolutePath()));
                     });
+
+            paths.close();
+            try (Stream<File> folderPaths = Files.list(Paths.get(directory.toURI())).map(Path::toFile)) {
+                folderPaths.filter(File::isDirectory)
+                        .sorted((file1, file2) -> file1.getName().compareToIgnoreCase(file2.getName()))
+                        .forEach(folder -> {
+                            String folderName = folder.getName();
+                            fileInfoList.add(new FileInfo(folderName, "folder", 0, folder.getAbsolutePath()));
+                        });
+            }
+
             videoTableView.setItems(fileInfoList);
         } catch (Exception e) {
             LogManager.getInstance().addLog("Error from files listing.", true);
         }
     }
+
 
     private void displayVideoDetails(File file) {
         MediaInfo mediaInfo = new MediaInfo();

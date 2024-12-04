@@ -37,94 +37,109 @@ public class VideoOrganizer {
 
     public static void execute(String path) {
         try (Stream<Path> paths = Files.list(Paths.get(normalizePath(path.trim())))) {
-            paths.filter(Files::isRegularFile).forEach(filePath -> {
-                String fileName = normalizePath(filePath.getFileName().toString().trim());
-
-                if (fileName.endsWith(".mkv") ||
-                        fileName.endsWith(".mp4") ||
-                        fileName.endsWith(".avi") ||
-                        fileName.endsWith(".rar") ||
-                        fileName.endsWith(".exe") ||
-                        fileName.endsWith(".7z")  ||
-                        fileName.endsWith(".ts")  ||
-                        fileName.endsWith(".mov") ||
-                        fileName.endsWith(".iso") ||
-                        fileName.endsWith(".zip")) {
-
-                    String videoName = fileName.substring(0, fileName.lastIndexOf('.')).trim();
-
-                    Path videoFolder = Paths.get(normalizePath(path), videoName);
-                    try {
-                        Files.createDirectories(videoFolder);
-
-                        Path destinationFile = videoFolder.resolve(fileName);
-                        Files.move(filePath, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-
-                        String videoDetails = getVideoDetails(destinationFile.toString());
-                        Path detailsPath = videoFolder.resolve("Video-Details.txt");
-                        Files.write(detailsPath, videoDetails.getBytes());
-
-                        String desktopIniContent = "[.ShellClassInfo]\n" +
-                                "IconFile=" + convertTurkishChars(videoName) + ".ico\n" +
-                                "IconIndex=0\n" +
-                                "ConfirmFileOp=0\n" +
-                                "NoSharing=1\n" +
-                                "InfoTip=This " + convertTurkishChars(videoName) + " movie\n";
-                        Path desktopIniPath = videoFolder.resolve("desktop.ini");
-
-                        try (FileOutputStream fos = new FileOutputStream(desktopIniPath.toFile())) {
-                            fos.write(desktopIniContent.getBytes(StandardCharsets.UTF_8));
-                        } catch (IOException e) {
-                            LogManager.getInstance().addLog("desktop.ini dosyası yazılırken hata oluştu.", true);
-                        }
-                        setHiddenAndSystemAttributes(desktopIniPath);
-
-                        Process setSystemFolder = Runtime.getRuntime().exec("attrib +s \"" + videoFolder + "\"");
-                        setSystemFolder.waitFor();
-
-                        String autorunContent = "[autorun]\n" +
-                                "OPEN=C:\\Program Files\\VideoLAN\\VLC\\vlc.exe " + fileName + "\n" +
-                                "ICON=" + videoName + ".ico\n";
-                        Path autorunPath = videoFolder.resolve("autorun.inf");
-                        Files.write(autorunPath, autorunContent.getBytes());
-
-                        String runBatContent = "@echo off\n" +
-                                "REM VLC Player kontrol et\n" +
-                                "if exist \"%ProgramFiles%\\VideoLAN\\VLC\\vlc.exe\" (\n" +
-                                "    echo VLC Player bulundu. VLC ile oynatiliyor...\n" +
-                                "    \"%ProgramFiles%\\VideoLAN\\VLC\\vlc.exe\" \"" + fileName + "\"\n" +
-                                ") else (\n" +
-                                "    REM Eğer 32-bit VLC kuruluysa\n" +
-                                "    if exist \"%ProgramFiles(x86)%\\VideoLAN\\VLC\\vlc.exe\" (\n" +
-                                "        echo 32-bit VLC Player bulundu. VLC ile oynatiliyor...\n" +
-                                "        \"%ProgramFiles(x86)%\\VideoLAN\\VLC\\vlc.exe\" \"" + fileName + "\"\n" +
-                                "    ) else (\n" +
-                                "        REM VLC yoksa Splash Player ile çalıştır\n" +
-                                "        if exist \"%ProgramFiles%\\Mirillis\\Splash\\splash.exe\" (\n" +
-                                "            echo VLC bulunamadı. Splash Player ile oynatiliyor...\n" +
-                                "            \"%ProgramFiles%\\Mirillis\\Splash\\splash.exe\" \"" + fileName + "\"\n" +
-                                "        ) else (\n" +
-                                "            REM Eğer 32-bit Splash kuruluysa\n" +
-                                "            if exist \"%ProgramFiles(x86)%\\Mirillis\\Splash\\splash.exe\" (\n" +
-                                "                echo VLC bulunamadı. Splash Player ile oynatiliyor...\n" +
-                                "                \"%ProgramFiles(x86)%\\Mirillis\\Splash\\splash.exe\" \"" + fileName + "\"\n" +
-                                "            ) else (\n" +
-                                "                echo VLC veya Splash Player bulunamadi. Lütfen bir medya oynatici yükleyin.\n" +
-                                "            )\n" +
-                                "        )\n" +
-                                "    )\n" +
-                                ")\n";
-                        Path runBatPath = videoFolder.resolve("run.bat");
-                        Files.write(runBatPath, runBatContent.getBytes());
-                        LogManager.getInstance().addLog(videoName + " için klasör ve dosyalar oluşturuldu.", false);
-                    } catch (IOException | InterruptedException e) {
-                        LogManager.getInstance().addLog("Klasör oluşturma hatası. ", true);
-                    }
+            paths.forEach(filePath -> {
+                if (Files.isDirectory(filePath)) {
+                    processFolderOrFile(filePath);
+                } else if (Files.isRegularFile(filePath)) {
+                    processFolderOrFile(filePath);
                 }
             });
         } catch (IOException e) {
-            LogManager.getInstance().addLog("Klasör okuma hatası.", true);
+            LogManager.getInstance().addLog("Klasör veya dosya okuma hatası.", true);
         }
+    }
+
+    private static void processFolderOrFile(Path path) {
+        String name = normalizePath(path.getFileName().toString().trim());
+        Path targetFolder;
+
+        if (Files.isRegularFile(path)) {
+            String fileBaseName = name;
+
+            int dotIndex = name.lastIndexOf('.');
+            if (dotIndex > 0) {
+                fileBaseName = name.substring(0, dotIndex).trim();
+            }
+
+            targetFolder = path.getParent().resolve(fileBaseName);
+        } else if (Files.isDirectory(path)) {
+            targetFolder = path;
+        } else {
+            LogManager.getInstance().addLog("Bilinmeyen türde bir öğe atlandı: " + name, true);
+            return;
+        }
+
+        try {
+            Files.createDirectories(targetFolder);
+
+            if (Files.isRegularFile(path)) {
+                Path destinationFile = targetFolder.resolve(name);
+                Files.move(path, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+                path = destinationFile;
+            }
+
+            String videoDetails = getVideoDetails(path.toString());
+            Path detailsPath = targetFolder.resolve("Video-Details.txt");
+            Files.write(detailsPath, videoDetails.getBytes());
+
+            String desktopIniContent = "[.ShellClassInfo]\n" +
+                    "IconFile=" + convertTurkishChars(name.replaceAll("\\.\\w+$", "")) + ".ico\n" +
+                    "IconIndex=0\n" +
+                    "ConfirmFileOp=0\n" +
+                    "NoSharing=1\n" +
+                    "InfoTip=This " + convertTurkishChars(name.replaceAll("\\.\\w+$", "")) + " item\n";
+            Path desktopIniPath = targetFolder.resolve("desktop.ini");
+            try (FileOutputStream fos = new FileOutputStream(desktopIniPath.toFile())) {
+                fos.write(desktopIniContent.getBytes(StandardCharsets.UTF_8));
+            }
+            setHiddenAndSystemAttributes(desktopIniPath);
+
+            Process setSystemFolder = Runtime.getRuntime().exec("attrib +s \"" + targetFolder + "\"");
+            setSystemFolder.waitFor();
+
+            String autorunContent = "[autorun]\n" +
+                    "OPEN=C:\\Program Files\\VideoLAN\\VLC\\vlc.exe " + name + "\n" +
+                    "ICON=" + name + ".ico\n";
+            Path autorunPath = targetFolder.resolve("autorun.inf");
+            Files.write(autorunPath, autorunContent.getBytes());
+
+            String runBatContent = generateRunBatContent(name);
+            Path runBatPath = targetFolder.resolve("run.bat");
+            Files.write(runBatPath, runBatContent.getBytes());
+
+            LogManager.getInstance().addLog(name + " için klasör ve dosyalar oluşturuldu.", false);
+        } catch (IOException | InterruptedException e) {
+            LogManager.getInstance().addLog("Klasör veya dosya işleme hatası: " + name, true);
+        }
+    }
+
+    private static String generateRunBatContent(String fileName) {
+        return "@echo off\n" +
+                "REM VLC Player kontrol et\n" +
+                "if exist \"%ProgramFiles%\\VideoLAN\\VLC\\vlc.exe\" (\n" +
+                "    echo VLC Player bulundu. VLC ile oynatiliyor...\n" +
+                "    \"%ProgramFiles%\\VideoLAN\\VLC\\vlc.exe\" \"" + fileName + "\"\n" +
+                ") else (\n" +
+                "    REM Eğer 32-bit VLC kuruluysa\n" +
+                "    if exist \"%ProgramFiles(x86)%\\VideoLAN\\VLC\\vlc.exe\" (\n" +
+                "        echo 32-bit VLC Player bulundu. VLC ile oynatiliyor...\n" +
+                "        \"%ProgramFiles(x86)%\\VideoLAN\\VLC\\vlc.exe\" \"" + fileName + "\"\n" +
+                "    ) else (\n" +
+                "        REM VLC yoksa Splash Player ile çalıştır\n" +
+                "        if exist \"%ProgramFiles%\\Mirillis\\Splash\\splash.exe\" (\n" +
+                "            echo VLC bulunamadı. Splash Player ile oynatiliyor...\n" +
+                "            \"%ProgramFiles%\\Mirillis\\Splash\\splash.exe\" \"" + fileName + "\"\n" +
+                "        ) else (\n" +
+                "            REM Eğer 32-bit Splash kuruluysa\n" +
+                "            if exist \"%ProgramFiles(x86)%\\Mirillis\\Splash\\splash.exe\" (\n" +
+                "                echo VLC bulunamadı. Splash Player ile oynatiliyor...\n" +
+                "                \"%ProgramFiles(x86)%\\Mirillis\\Splash\\splash.exe\" \"" + fileName + "\"\n" +
+                "            ) else (\n" +
+                "                echo VLC veya Splash Player bulunamadi. Lütfen bir medya oynatici yükleyin.\n" +
+                "            )\n" +
+                "        )\n" +
+                "    )\n" +
+                ")\n";
     }
 
     private static String normalizePath(String path) {
