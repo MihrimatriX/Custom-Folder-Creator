@@ -14,7 +14,7 @@ import java.util.Random;
 
 public class App extends Application {
     public static void main(String[] args) {
-        testFolder();
+        //testFolder();
         launch();
     }
 
