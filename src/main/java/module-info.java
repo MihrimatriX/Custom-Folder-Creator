@@ -4,6 +4,7 @@ module com.creator {
     requires java.desktop;
     requires org.jsoup;
     requires image4j;
+    requires org.apache.poi.ooxml;
     requires com.sun.jna;
 
     opens com.creator to javafx.fxml;

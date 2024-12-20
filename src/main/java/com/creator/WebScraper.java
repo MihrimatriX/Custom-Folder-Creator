@@ -15,6 +15,7 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import static com.creator.HtmlHelper.saveHtmlToFile;
 import static com.creator.VideoOrganizer.convertTurkishChars;
@@ -92,7 +93,7 @@ public class WebScraper {
             LogManager.getInstance().addLog("ICO image created successfully: " + icoPath, false);
 
             Path icoFilePath = Paths.get(icoPath);
-            Files.setAttribute(icoFilePath, "dos:hidden", true);
+            Files.setAttribute(icoFilePath, "dos:hidden", Optional.of(true));
             LogManager.getInstance().addLog("ICO image set to hidden: " + icoPath, false);
         } catch (IOException e) {
             LogManager.getInstance().addLog("Error downloading or converting image: ", true);

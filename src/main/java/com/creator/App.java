@@ -2,6 +2,7 @@ package com.creator;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -14,7 +15,7 @@ import java.util.Random;
 
 public class App extends Application {
     public static void main(String[] args) {
-        //testFolder();
+        testFolder();
         launch();
     }
 
@@ -148,11 +149,33 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/archive.png")).toString()));
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/app.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("File AutoRun File Creator");
-        stage.setResizable(false);
-        stage.setScene(scene);
-        stage.show();
+
+        FXMLLoader webScraperLoad = new FXMLLoader(App.class.getResource("/app.fxml"));
+        FXMLLoader icoConvertLoad = new FXMLLoader(App.class.getResource("/ico_convert.fxml"));
+        FXMLLoader directoryListLoad = new FXMLLoader(App.class.getResource("/directory_list.fxml"));
+
+        Stage webScraperStage = new Stage();
+        Scene webScraperScene = new Scene(webScraperLoad.load());
+        webScraperScene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm());
+        webScraperStage.setTitle("File AutoRun File Creator");
+        webScraperStage.setResizable(false);
+        webScraperStage.setScene(webScraperScene);
+        webScraperStage.show();
+
+        Stage icoConvertStage = new Stage();
+        Scene icoConvertScene = new Scene(icoConvertLoad.load());
+        icoConvertScene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm());
+        icoConvertStage.setTitle("Png ICO Converter");
+        icoConvertStage.setResizable(false);
+        icoConvertStage.setScene(icoConvertScene);
+        icoConvertStage.show();
+
+        Stage directoryListStage = new Stage();
+        Scene directoryListScene = new Scene(directoryListLoad.load());
+        directoryListScene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm());
+        directoryListStage.setTitle("Directory List");
+        directoryListStage.setResizable(false);
+        directoryListStage.setScene(directoryListScene);
+        directoryListStage.show();
     }
 }
