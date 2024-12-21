@@ -6,6 +6,7 @@ module com.creator {
     requires image4j;
     requires org.apache.poi.ooxml;
     requires com.sun.jna;
+    requires com.google.gson;
 
     opens com.creator to javafx.fxml;
     exports com.creator;

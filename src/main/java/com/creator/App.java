@@ -150,6 +150,7 @@ public class App extends Application {
         FXMLLoader webScraperLoad = new FXMLLoader(App.class.getResource("/app.fxml"));
         FXMLLoader icoConvertLoad = new FXMLLoader(App.class.getResource("/ico_convert.fxml"));
         FXMLLoader directoryListLoad = new FXMLLoader(App.class.getResource("/directory_list.fxml"));
+        FXMLLoader bookmarkSaverLoad = new FXMLLoader(App.class.getResource("/bookmark_saver.fxml"));
 
         Stage webScraperStage = new Stage();
         Scene webScraperScene = new Scene(webScraperLoad.load());
@@ -175,9 +176,18 @@ public class App extends Application {
         icoConvertStage.setScene(icoConvertScene);
         icoConvertStage.show();
 
+        Stage bookmarkSaveStage = new Stage();
+        Scene bookmarkSaveScene = new Scene(bookmarkSaverLoad.load());
+        bookmarkSaveScene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm());
+        bookmarkSaveStage.setTitle("Bookmark Saver");
+        bookmarkSaveStage.setResizable(false);
+        bookmarkSaveStage.setScene(bookmarkSaveScene);
+        bookmarkSaveStage.show();
+
         webScraperStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/archive.png")).toString()));
         directoryListStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/directory.png")).toString()));
         icoConvertStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/icon.png")).toString()));
+        bookmarkSaveStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/book.png")).toString()));
 
         webScraperStage.setX(250);
         webScraperStage.setY(200);
@@ -187,5 +197,8 @@ public class App extends Application {
 
         icoConvertStage.setX(webScraperStage.getX() + webScraperStage.getWidth() + 10);
         icoConvertStage.setY(directoryListStage.getY() + directoryListStage.getHeight() + 10);
+
+        bookmarkSaveStage.setX(directoryListStage.getX() + directoryListStage.getWidth() + 10);
+        bookmarkSaveStage.setY(200);
     }
 }
