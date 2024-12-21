@@ -147,8 +147,6 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/archive.png")).toString()));
-
         FXMLLoader webScraperLoad = new FXMLLoader(App.class.getResource("/app.fxml"));
         FXMLLoader icoConvertLoad = new FXMLLoader(App.class.getResource("/ico_convert.fxml"));
         FXMLLoader directoryListLoad = new FXMLLoader(App.class.getResource("/directory_list.fxml"));
@@ -158,29 +156,36 @@ public class App extends Application {
         webScraperScene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm());
         webScraperStage.setTitle("File AutoRun File Creator");
         webScraperStage.setResizable(false);
-        webScraperStage.setY(100);
-        webScraperStage.setX(50);
         webScraperStage.setScene(webScraperScene);
         webScraperStage.show();
-
-        Stage icoConvertStage = new Stage();
-        Scene icoConvertScene = new Scene(icoConvertLoad.load());
-        icoConvertScene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm());
-        icoConvertStage.setTitle("Png ICO Converter");
-        icoConvertStage.setResizable(false);
-        icoConvertStage.setY(100);
-        icoConvertStage.setX(webScraperStage.getX() + webScraperStage.getWidth() + 10);
-        icoConvertStage.setScene(icoConvertScene);
-        icoConvertStage.show();
 
         Stage directoryListStage = new Stage();
         Scene directoryListScene = new Scene(directoryListLoad.load());
         directoryListScene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm());
         directoryListStage.setTitle("Directory List");
         directoryListStage.setResizable(false);
-        directoryListStage.setY(100);
-        directoryListStage.setX(icoConvertStage.getX() + icoConvertStage.getWidth() + 10);
         directoryListStage.setScene(directoryListScene);
         directoryListStage.show();
+
+        Stage icoConvertStage = new Stage();
+        Scene icoConvertScene = new Scene(icoConvertLoad.load());
+        icoConvertScene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm());
+        icoConvertStage.setTitle("Png ICO Converter");
+        icoConvertStage.setResizable(false);
+        icoConvertStage.setScene(icoConvertScene);
+        icoConvertStage.show();
+
+        webScraperStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/archive.png")).toString()));
+        directoryListStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/directory.png")).toString()));
+        icoConvertStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/icon.png")).toString()));
+
+        webScraperStage.setX(250);
+        webScraperStage.setY(200);
+
+        directoryListStage.setX(webScraperStage.getX() + webScraperStage.getWidth() + 10);
+        directoryListStage.setY(200);
+
+        icoConvertStage.setX(webScraperStage.getX() + webScraperStage.getWidth() + 10);
+        icoConvertStage.setY(directoryListStage.getY() + directoryListStage.getHeight() + 10);
     }
 }
