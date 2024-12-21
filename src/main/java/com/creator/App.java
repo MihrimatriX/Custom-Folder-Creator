@@ -2,7 +2,6 @@ package com.creator;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -15,11 +14,11 @@ import java.util.Random;
 
 public class App extends Application {
     public static void main(String[] args) {
-        testFolder();
+        //testFolder();
         launch();
     }
 
-    public static void testFolder() {
+    static void testFolder() {
         String basePath = System.getenv("USERPROFILE") + "\\Desktop\\Test Folder";
         String[] extensions = {".iso", ".zip", ".rar", ".7z", ".exe"};
 

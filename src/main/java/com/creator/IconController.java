@@ -11,7 +11,6 @@ import javafx.stage.Stage;
 import net.sf.image4j.codec.ico.ICOEncoder;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -20,15 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IconController {
+    private final List<File> fileList = new ArrayList<>();
     @FXML
     private Label dragDropLabel;
     @FXML
     private ListView<File> fileListView;
     @FXML
     private Label targetLabel;
-
     private File targetDirectory;
-    private final List<File> fileList = new ArrayList<>();
 
     @FXML
     public void initialize() {
