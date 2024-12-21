@@ -158,6 +158,8 @@ public class App extends Application {
         webScraperScene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm());
         webScraperStage.setTitle("File AutoRun File Creator");
         webScraperStage.setResizable(false);
+        webScraperStage.setY(100);
+        webScraperStage.setX(50);
         webScraperStage.setScene(webScraperScene);
         webScraperStage.show();
 
@@ -166,6 +168,8 @@ public class App extends Application {
         icoConvertScene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm());
         icoConvertStage.setTitle("Png ICO Converter");
         icoConvertStage.setResizable(false);
+        icoConvertStage.setY(100);
+        icoConvertStage.setX(webScraperStage.getX() + webScraperStage.getWidth() + 10);
         icoConvertStage.setScene(icoConvertScene);
         icoConvertStage.show();
 
@@ -174,6 +178,8 @@ public class App extends Application {
         directoryListScene.getStylesheets().add(Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm());
         directoryListStage.setTitle("Directory List");
         directoryListStage.setResizable(false);
+        directoryListStage.setY(100);
+        directoryListStage.setX(icoConvertStage.getX() + icoConvertStage.getWidth() + 10);
         directoryListStage.setScene(directoryListScene);
         directoryListStage.show();
     }
