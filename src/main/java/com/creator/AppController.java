@@ -60,6 +60,18 @@ public class AppController {
     private VBox videoListVBox;
 
     @FXML
+    private ProgressBar progressBar;
+
+    @FXML
+    private Label progressLabel;
+
+    @FXML
+    private ProgressBar totalProgressBar;
+
+    @FXML
+    private Label totalProgressLabel;
+
+    @FXML
     private void initialize() {
         String darkTheme = Objects.requireNonNull(App.class.getResource("/dark-theme.css")).toExternalForm();
         videoTableView.getParent().getStylesheets().add(darkTheme);
@@ -88,6 +100,23 @@ public class AppController {
                 }
             }
         });
+
+        if (progressBar != null) {
+            progressBar.setProgress(0);
+            progressBar.setStyle("-fx-accent: #00ff00;");
+        }
+        if (progressLabel != null) {
+            progressLabel.setText("Hazır");
+            progressLabel.setStyle("-fx-text-fill: white;");
+        }
+        if (totalProgressBar != null) {
+            totalProgressBar.setProgress(0);
+            totalProgressBar.setStyle("-fx-accent: #00ff00;");
+        }
+        if (totalProgressLabel != null) {
+            totalProgressLabel.setText("0/0");
+            totalProgressLabel.setStyle("-fx-text-fill: white;");
+        }
     }
 
     private void clearDetails() {
@@ -100,13 +129,16 @@ public class AppController {
     private void selectFolder() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select Folder");
-        Path selectedFolder = directoryChooser.showDialog(null).toPath();
-
-        String selectedFolderPath = selectedFolder.toString();
-        listFiles(new File(selectedFolderPath));
-        this.workDirectory = selectedFolderPath;
-        selectPathLabel.setTextFill(Color.RED);
-        selectPathLabel.setText(selectedFolderPath);
+        File selectedDirectory = directoryChooser.showDialog(null);
+        
+        if (selectedDirectory != null) {
+            Path selectedFolder = selectedDirectory.toPath();
+            String selectedFolderPath = selectedFolder.toString();
+            listFiles(new File(selectedFolderPath));
+            this.workDirectory = selectedFolderPath;
+            selectPathLabel.setTextFill(Color.RED);
+            selectPathLabel.setText(selectedFolderPath);
+        }
     }
 
     @FXML
@@ -269,7 +301,18 @@ public class AppController {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() {
+                int total = fileInfoList.size();
+                int current = 0;
+
+                Platform.runLater(() -> {
+                    totalProgressBar.setProgress(0);
+                    totalProgressLabel.setText("0/" + total);
+                });
+
                 for (FileInfo fileInfo : fileInfoList) {
+                    current++;
+                    final int currentFile = current;
+                    
                     String fileName = fileInfo.getNameWithoutExtension();
                     String targetDirectory = workDirectory + "/" + fileName;
 
@@ -278,7 +321,13 @@ public class AppController {
                         var ignored = dir.mkdirs();
                     }
 
-                    fetchIcon(fileName, targetDirectory);
+                    Platform.runLater(() -> {
+                        progressLabel.setText("İşleniyor: " + fileName);
+                        totalProgressLabel.setText(currentFile + "/" + total);
+                        totalProgressBar.setProgress((double) currentFile / total);
+                    });
+
+                    fetchIcon(fileName, targetDirectory, progressBar);
 
                     Platform.runLater(() -> {
                         File iconFile = new File(targetDirectory + "/" + fileName + ".png");
@@ -300,11 +349,16 @@ public class AppController {
                 return null;
             }
         };
+
         task.setOnSucceeded(event -> Platform.runLater(() -> {
+            progressBar.setProgress(1.0);
+            progressLabel.setText("İşlem tamamlandı!");
+            totalProgressBar.setProgress(1.0);
+            
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Successfully Completed");
+            alert.setTitle("İşlem Tamamlandı");
             alert.setHeaderText(null);
-            alert.setContentText("All files success created.");
+            alert.setContentText("Tüm dosyalar başarıyla oluşturuldu.");
             alert.showAndWait();
 
             try {
@@ -314,12 +368,13 @@ public class AppController {
                 }
             } catch (Exception e) {
                 Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                errorAlert.setTitle("Error");
-                errorAlert.setHeaderText("Unable to open folder");
-                errorAlert.setContentText("An error occurred while trying to open the folder.");
+                errorAlert.setTitle("Hata");
+                errorAlert.setHeaderText("Klasör açılamadı");
+                errorAlert.setContentText("Klasör açılırken bir hata oluştu.");
                 errorAlert.showAndWait();
             }
         }));
+
         new Thread(task).start();
     }
 

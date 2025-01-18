@@ -82,20 +82,44 @@ public class VideoOrganizer {
             Path detailsPath = targetFolder.resolve("Video-Details.txt");
             Files.write(detailsPath, videoDetails.getBytes());
 
+            String icoFileName = convertTurkishChars(name.replaceAll("\\.\\w+$", "")) + ".ico";
             String desktopIniContent = "[.ShellClassInfo]\n" +
-                    "IconFile=" + convertTurkishChars(name.replaceAll("\\.\\w+$", "")) + ".ico\n" +
-                    "IconIndex=0\n" +
-                    "ConfirmFileOp=0\n" +
-                    "NoSharing=1\n" +
-                    "InfoTip=This " + convertTurkishChars(name.replaceAll("\\.\\w+$", "")) + " item\n";
+                    "IconResource=" + icoFileName + ",0\n" +
+                    "[ViewState]\n" +
+                    "Mode=\n" +
+                    "Vid=\n" +
+                    "FolderType=Videos\n";
+
             Path desktopIniPath = targetFolder.resolve("desktop.ini");
+            
+            // Önce klasörü sistem klasörü yap
+            Process setSystemFolder = Runtime.getRuntime().exec("attrib +s \"" + targetFolder + "\"");
+            setSystemFolder.waitFor();
+
+            // desktop.ini dosyasını oluştur
             try (FileOutputStream fos = new FileOutputStream(desktopIniPath.toFile())) {
                 fos.write(desktopIniContent.getBytes(StandardCharsets.UTF_8));
             }
-            setHiddenAndSystemAttributes(desktopIniPath);
 
-            Process setSystemFolder = Runtime.getRuntime().exec("attrib +s \"" + targetFolder + "\"");
-            setSystemFolder.waitFor();
+            // desktop.ini dosyasını gizli ve sistem dosyası yap
+            Process setAttributes = Runtime.getRuntime().exec("attrib +s +h \"" + desktopIniPath + "\"");
+            setAttributes.waitFor();
+
+            // Klasör özniteliklerini güncelle
+            Process updateFolder = Runtime.getRuntime().exec(new String[] {
+                "cmd", "/c",
+                "attrib +r \"" + targetFolder + "\" && " +
+                "attrib +s +h \"" + desktopIniPath + "\" && " +
+                "attrib +s \"" + targetFolder + "\""
+            });
+            updateFolder.waitFor();
+
+            // ICO dosyasını sistem dosyası yap
+            Path icoPath = targetFolder.resolve(icoFileName);
+            if (Files.exists(icoPath)) {
+                Process setIcoAttributes = Runtime.getRuntime().exec("attrib +s \"" + icoPath + "\"");
+                setIcoAttributes.waitFor();
+            }
 
             String autorunContent = "[autorun]\n" +
                     "OPEN=C:\\Program Files\\VideoLAN\\VLC\\vlc.exe " + name + "\n" +
@@ -108,8 +132,11 @@ public class VideoOrganizer {
             Files.write(runBatPath, runBatContent.getBytes());
 
             LogManager.getInstance().addLog(name + " için klasör ve dosyalar oluşturuldu.", false);
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             LogManager.getInstance().addLog("Klasör veya dosya işleme hatası: " + name, true);
+        } catch (InterruptedException e) {
+            LogManager.getInstance().addLog("İşlem kesintiye uğradı: " + name, true);
+            Thread.currentThread().interrupt(); // Kesinti durumunu yeniden ayarla
         }
     }
 

@@ -22,6 +22,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import javafx.scene.control.TextArea;
 
 public class BookmarkController {
     List<ChromeBookmarksReader.Bookmark> bookmarks;
@@ -32,6 +35,28 @@ public class BookmarkController {
     private TextField bookmarkField;
     @FXML
     private ChoiceBox<String> browserList;
+    @FXML
+    private ProgressBar progressBar;
+    @FXML
+    private TextArea logArea;
+    
+    private int totalBookmarks = 0;
+    private int processedBookmarks = 0;
+
+    private void updateProgressBar() {
+        if (totalBookmarks > 0) {
+            double progress = (double) processedBookmarks / totalBookmarks;
+            Platform.runLater(() -> progressBar.setProgress(progress));
+        }
+    }
+
+    private void log(String message) {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+        Platform.runLater(() -> {
+            logArea.appendText(String.format("[%s] %s%n", timestamp, message));
+            logArea.setScrollTop(Double.MAX_VALUE);
+        });
+    }
 
     @FXML
     public void initialize() {
@@ -39,7 +64,7 @@ public class BookmarkController {
         browserList.getItems().addAll("Edge", "Chrome", "Firefox", "Safari");
         browserList.getSelectionModel().selectFirst();
 
-        bookmarks = ChromeBookmarksReader.readBookmarks(browserList.getValue(), "Utils");
+        bookmarks = ChromeBookmarksReader.readBookmarks(browserList.getValue(), bookmarkField.getText());
         bookmarkListView.setOnMouseClicked(this::handleListClick);
         bookmarkListView.getItems().addAll(bookmarks);
         bookmarkListView.setCellFactory((ListView<ChromeBookmarksReader.Bookmark> bookmark) -> new ListCell<>() {
@@ -55,6 +80,9 @@ public class BookmarkController {
                 }
             }
         });
+
+        progressBar.setProgress(0);
+        log("Uygulama başlatıldı");
     }
 
     @FXML
@@ -85,9 +113,10 @@ public class BookmarkController {
             return;
         }
 
-        List<ChromeBookmarksReader.Bookmark> bookmarks = ChromeBookmarksReader.readBookmarks(browserList.getValue(), bookmarkField.getText());
+        bookmarks = ChromeBookmarksReader.readBookmarks(browserList.getValue(), bookmarkField.getText());
         bookmarkListView.getItems().clear();
         bookmarkListView.getItems().addAll(bookmarks);
+        log("Bookmark listesi güncellendi: " + bookmarkField.getText());
     }
 
     @FXML
@@ -98,9 +127,14 @@ public class BookmarkController {
 
         if (selectedDirectory != null) {
             String targetDirectory = selectedDirectory.getAbsolutePath();
-            startSavingTask(targetDirectory);
+            loadBookmarks();
+            if (bookmarks != null && !bookmarks.isEmpty()) {
+                startSavingTask(targetDirectory);
+            } else {
+                log("Kaydedilecek bookmark bulunamadı!");
+            }
         } else {
-            System.out.println("No directory selected.");
+            log("Hedef dizin seçilmedi.");
         }
     }
 
@@ -165,10 +199,14 @@ public class BookmarkController {
         return new javafx.concurrent.Task<>() {
             @Override
             protected Void call() {
+                log("İndirme başlatıldı: " + bookmark.name());
                 boolean success = savePageWithHttrack(bookmark, targetDirectory);
                 if (!success) {
+                    log("HTTrack başarısız oldu, JSoup ile deneniyor: " + bookmark.name());
                     savePageWithHttrackAndJsoup(bookmark, targetDirectory);
                 }
+                processedBookmarks++;
+                Platform.runLater(() -> updateProgressBar());
                 return null;
             }
         };
@@ -224,25 +262,36 @@ public class BookmarkController {
 
     private void startSavingTask(String targetDirectory) {
         List<javafx.concurrent.Task<Void>> tasks = new ArrayList<>();
+        totalBookmarks = bookmarks.size();
+        processedBookmarks = 0;
+        log("Toplam " + totalBookmarks + " bookmark indirilecek");
 
         for (ChromeBookmarksReader.Bookmark bookmark : bookmarks) {
             javafx.concurrent.Task<Void> task = createHttrackTask(bookmark, targetDirectory);
             tasks.add(task);
-            task.setOnSucceeded(worker -> System.out.println("Successfully saved: " + bookmark.url()));
+            task.setOnSucceeded(worker -> {
+                log("Başarıyla kaydedildi: " + bookmark.name());
+            });
             task.setOnFailed(worker -> {
-                System.out.println("Failed to save: " + bookmark.url());
+                log("Kaydetme başarısız: " + bookmark.name());
                 failedUrls.add(bookmark.url());
             });
         }
 
-        new Thread(() -> tasks.forEach(task -> {
-            try {
-                new Thread(task).start();
-                task.get();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        })).start();
-        Platform.runLater(this::saveFailedUrlsToJson);
+        new Thread(() -> {
+            tasks.forEach(task -> {
+                try {
+                    new Thread(task).start();
+                    task.get();
+                } catch (Exception e) {
+                    Platform.runLater(() -> log("Hata: " + e.getMessage()));
+                    e.printStackTrace();
+                }
+            });
+            Platform.runLater(() -> {
+                saveFailedUrlsToJson();
+                log("Tüm işlemler tamamlandı!");
+            });
+        }).start();
     }
 }
