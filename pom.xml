@@ -65,6 +65,13 @@
             <artifactId>javafx-web</artifactId>
             <version>17.0.6</version>
         </dependency>
+        <dependency>
+            <groupId>net.sf.image4j</groupId>
+            <artifactId>image4j</artifactId>
+            <version>0.7.2</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/lib/image4j-0.7.2.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>
