@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="15" stylesheets="@dark-theme.css"
+    xmlns="http://javafx.com/javafx/17.0.6"
+    xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.creator.MainMenuController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Custom Folder Creator" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+    <Label text="Dosya ve klasör yönetimi için çoklu araç seti" style="-fx-font-size: 14;" wrapText="true"/>
+
+    <Separator/>
+
+    <VBox spacing="5" alignment="CENTER">
+        <Button text="File AutoRun Creator" onAction="#openWebScraper" maxWidth="200"/>
+        <Label text="Klasör içindeki dosyalar için otomatik başlatma dosyası oluşturur" wrapText="true" style="-fx-text-fill: #888888;" maxWidth="300"/>
+    </VBox>
+
+    <VBox spacing="5" alignment="CENTER">
+        <Button text="Directory List" onAction="#openDirectoryList" maxWidth="200"/>
+        <Label text="Klasör içeriğini listeler ve içerik bilgilerini Excel dosyasına aktarır" wrapText="true" style="-fx-text-fill: #888888;" maxWidth="300"/>
+    </VBox>
+
+    <VBox spacing="5" alignment="CENTER">
+        <Button text="Png ICO Converter" onAction="#openIcoConverter" maxWidth="200"/>
+        <Label text="PNG formatındaki görselleri ICO formatına dönüştürür" wrapText="true" style="-fx-text-fill: #888888;" maxWidth="300"/>
+    </VBox>
+
+    <VBox spacing="5" alignment="CENTER">
+        <Button text="Bookmark Saver" onAction="#openBookmarkSaver" maxWidth="200"/>
+        <Label text="Chrome yer imlerini yedekler ve yönetir" wrapText="true" style="-fx-text-fill: #888888;" maxWidth="300"/>
+    </VBox>
+
+    <VBox spacing="5" alignment="CENTER">
+        <Button text="Bookmark Filmbol Analyze" onAction="#openBookmarkFilmbol" maxWidth="200"/>
+        <Label text="Filmbol sitesinden kaydedilen yer imlerini analiz eder ve düzenler" wrapText="true" style="-fx-text-fill: #888888;" maxWidth="300"/>
+    </VBox>
+
+    <Separator/>
+
+    <Label text="© Custom-Folder-Creator by AFU" style="-fx-text-fill: #888888;"/>
+</VBox> 

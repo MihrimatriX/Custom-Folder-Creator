@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.6" stylesheets="@dark-theme.css"
+      fx:controller="com.creator.IconController" spacing="10" style="-fx-padding: 10;">
+    <Label text="PNG dosyalarını buraya sürükleyip bırakın."
+           style="-fx-border-color: gray; -fx-border-style: dashed; -fx-padding: 20; -fx-text-alignment: center;"
+           prefHeight="100" fx:id="dragDropLabel"/>
+    <ListView fx:id="fileListView" prefHeight="200"/>
+    <Label text="Hedef Klasör: Henüz seçilmedi" fx:id="targetLabel"/>
+    <Button text="Hedef Klasörü Seç" onAction="#handleSetTargetDirectory"/>
+    <Button text="Dönüştür" onAction="#handleConvert"/>
+</VBox>
